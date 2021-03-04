@@ -24,23 +24,26 @@ Si no es té a la distribució original es pot fer source a TTS_venv: source ~/w
 ## Possibles errors:
 
 ### Comunicació amb el braç:
-
-
+```
   File "motion_controll.py", line 17, in <module>  
     ESP300 = factory.getDevice( "motionController" )  
   File "/home/heplab/OOFlex/OOFlex/interface/InterfaceFactory.py", line 81, in getDevice  
     instr = InterfaceFactory.__instrMap[ self.__setup[ instr ][ "device" ] ]  
 KeyError: 'ESP300'  
+```
 
+* Mirar que hi hagi la carpeta: /home/heplab/OOFlex/OOFlex/instruments/Newport  
+* Mirar que a setup.ini hi hagi amb l'adressa gpib correcta: [motionController] device=ESP300 address=gpib:/  /1:0  
 
-		Mirar que hi hagi la carpeta: /home/heplab/OOFlex/OOFlex/instruments/Newport  
-		Mirar que a setup.ini hi hagi amb l'adressa gpib correcta: [motionController] device=ESP300 address=gpib:/  /1:0  
+```
 heplab@heplab-ALDA:~/workspace/UpgradeII/FromTheOtherPC$ cat setup.ini  
 [motionController]  
 device=ESP300  
 address=gpib://1:0  
+```
 
-		Mirar que la comunicació sigui correcta:  
+* Mirar que la comunicació sigui correcta:  
+```
 			sudo gpib_config  
 			sudo ibtest  
 Do you wish to open a (d)evice or an interface (b)oard?  
@@ -62,7 +65,7 @@ Number of bytes read: 30
 gpib status is:  
 ibsta = 0x2100  < END CMPL >  
 iberr= 0  
-
+```
 
 
 
