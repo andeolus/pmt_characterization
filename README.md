@@ -2,11 +2,11 @@
 Make measurements on PMTs, analyze them and plot results. Features: Transient time spread, uniformity, Gain over HV...
 
 ## Contingut:
-*motion_controll.py: moure el braç, comprovar que funciona.  
+* motion_controll.py: moure el braç, comprovar que funciona.  
 Usage: python motion_controll.py 0 0 0  
-*motion_controll_scroll.py: moure el braç agafant una xarxa de punts, comprovar que no s'encalla (passava a vegades).  
-Usage: python motion_controll_scroll.py  
-Warning: hard coded els punts de la xarxa, controlar que no vagi massa lluny  
+* motion_controll_scroll.py: moure el braç agafant una xarxa de punts, comprovar que no s'encalla (passava a vegades).  
+Usage: python motion_controll_scroll.py
+  Warning: hard coded els punts de la xarxa, controlar que no vagi massa lluny  
 
 ## Dependencies
 Per generar els plots es necessita la llibreria pandas.  
