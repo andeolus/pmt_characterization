@@ -1,13 +1,7 @@
 # pmt_characterization
 Make measurements on PMTs, analyze them and plot results. Features: Transient time spread, uniformity, Gain over HV...
 
-Passos:
-1: source /home/heplab/OOFlex/env.sh
-2: sudo gpib_config
-3: posar setup.ini allà on poses les dades (?)
-
-
-Scripts:
+## Contingut:
 motion_controll.py: moure el braç, comprovar que funciona.
 	Usage: python motion_controll.py 0 0 0
 motion_controll_scroll.py: moure el braç agafant una xarxa de punts, comprovar que no s'encalla (passava a vegades).
@@ -16,10 +10,18 @@ motion_controll_scroll.py: moure el braç agafant una xarxa de punts, comprovar 
 
 
 
---------------------------------------------------------
-Possibles errors:
+## Passos:
+1: source /home/heplab/OOFlex/env.sh
+2: sudo gpib_config
+3: posar setup.ini allà on poses les dades (?)
 
-	Comunicació amb el braç:
+
+
+--------------------------------------------------------
+
+## Possibles errors:
+
+### Comunicació amb el braç:
 
   File "motion_controll.py", line 17, in <module>
     ESP300 = factory.getDevice( "motionController" )
@@ -60,6 +62,6 @@ iberr= 0
 
 
 
-	Comunicació amb l'oscil.loscopi:
+### Comunicació amb l'oscil.loscopi:
 correr: python ~/Control/MSO9404A_waveform.py 10 ch1
 esborrar dades brossa generades: rm data-ch1-0.bin 
