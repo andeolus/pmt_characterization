@@ -164,7 +164,7 @@ def AverageFilter( waveform, N ):
 if __name__ == "__main__":
   pedRange, cut_ini, cut_end, ficheros, NumPoints = getparams( sys.argv[ 1: ] )
   for fichero in ficheros:
-    print( "Processing file %s" % fichero) 
+    print( "Processing file %s" % fichero)
     fd = open( fichero, "rb" )
     file_size = os.path.getsize( fichero )
     pedestal = []

@@ -173,7 +173,7 @@ if __name__ == "__main__":
   pedRange, cut_ini, cut_end, ficheros, NumPoints = getparams( sys.argv[ 1: ] )
   print(pedRange, cut_ini, cut_end, ficheros, NumPoints)
   # Ficheros in folder
-  
+
   for fichero in ficheros:
     X = re.search('_X(.*)mm_', fichero).group(1)
     Y = re.search('_Y(.*)mm', fichero).group(1)
