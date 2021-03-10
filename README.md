@@ -10,9 +10,29 @@ _Usage_: python motion_controll_scroll.py xmin xmax xN ymin ymax yN --bool_wait
 * **mesura_PMT_scan.py**: fer mesures en una xarxa de punts, guardant dades a la carpeta "name" amb "num_waveforms" per punt  
 _Usage_: python mesura_PMT_scan.py name num_waveforms xmin xmax xN ymin ymax yN  
 ### analyze
+* **analyze_PMT_uniformity.py**:  
+analyze uniformity using all the files for different points.  
+The direcory of the files can be given alternatively to a list of all files. files must start with P (ensured by measure/mesura_PMT_scan.py).  
+creates a TTS.txt file with the relevant info which can be used latter by plotters/TTS_plotter  
+_Usage_: python3 analyze_PMT_uniformity.py <-r [pedestal range]> <-i [signal init]> <-e [signal end]> <-n [number of points]> <-h [help]> data_files
+Defaults:
+pedRange = 200   description: [pedestal range]  -   
+cut_ini = 250    description: [signal init]  -   
+cut_end = 1024   description: [signal end]  -   
+ficheros = []    description:   -   
+numPoints= 0     description: not used, inherited from previous scripts that applyied filters [number of points]  -   
+
 ### plotters
-* plotWaveform_P3.py
-* HV_plotter.py
+* **TTS_plotter.py**:  
+_Usage_: python3 TTS_plotter.py  
+Hard coded parameters:  
+    - datadir='TS0340_09sep/'  
+    - input file TTS_wma.txt -> needs to be changed tot TTS.txt eventually  
+generates plots directly in running directory  
+needs pandas module
+
+* **plotWaveform_P3.py**:  
+* **HV_plotter.py**:
 
 ## Dependències
 Per generar els plots es necessita la llibreria pandas.  
