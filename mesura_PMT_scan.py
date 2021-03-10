@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
+from __future__ import print_function 
 import argparse
 import time
 import os
@@ -10,7 +10,7 @@ from OOFlex.interface.InterfaceFactory import InterfaceFactory
 from OOFlex.measurement.Measure import Measure
 from OOFlex.csvfiles.CSVWriter import CSVWriter
 
-print "python {} name num_waveforms xmin xmax xN ymin ymax yN".format(sys.argv[0])
+print( "python {} name num_waveforms xmin xmax xN ymin ymax yN".format(sys.argv[0]) )
 
 def scan(name, num_waveforms, xmin, xmax, xN, ymin, ymax, yN):
     """ Make measurements scanning a grid of xN*yN points
@@ -31,7 +31,7 @@ def scan(name, num_waveforms, xmin, xmax, xN, ymin, ymax, yN):
     for ax2 in a2:
         for ax3 in a3:
             try:
-                print "aiming to: ", ax2, ax3
+                print( "aiming to: ", ax2, ax3 )
                 ESP300.setA(ax2,2)
                 time.sleep( 1 )
                 ESP300.setA(ax3,3)
@@ -39,39 +39,39 @@ def scan(name, num_waveforms, xmin, xmax, xN, ymin, ymax, yN):
                 x= float(ESP300.tpA(2))
                 time.sleep( 1 )
                 y=float(ESP300.tpA(3))
-                print "X, Y:    ", x , y
-                # print "Y: ", y
+                print( "X, Y:    ", x , y )
+                # print( "Y: ", y )
                 if (abs(ax2-x)>0.1 or abs(ax3-y)>0.1):
-                    print " discrepant! Trying again:"
+                    print( " discrepant! Trying again:" )
                     ESP300.setA2(ax2)
                     ESP300.setA3(ax3)
                     time.sleep( 1 )
                     x= float(ESP300.tpA2())
                     y=float(ESP300.tpA3())
-                    print "X: ", float(ESP300.tpA2())
-                    print "Y: ", float(ESP300.tpA3())
-                print "-------------"
+                    print( "X: ", float(ESP300.tpA2()) )
+                    print( "Y: ", float(ESP300.tpA3()) )
+                print( "-------------" )
             except:
-                print "ERROR!!!"
-                print "Trying again..."
-                print "aiming to: ", ax2, ax3
+                print( "ERROR!!!" )
+                print( "Trying again..." )
+                print( "aiming to: ", ax2, ax3 )
                 ESP300.setA(ax2,2)
                 ESP300.setA(ax3,3)
                 time.sleep( 4 ) #1
                 x= float(ESP300.tpA(2))
                 y=float(ESP300.tpA(3))
-                print "X, Y:    ", x , y
-                # print "Y: ", y
+                print( "X, Y:    ", x , y )
+                # print( "Y: ", y )
                 if (abs(ax2-x)>0.1 or abs(ax3-y)>0.1):
-                    print " discrepant! Trying again:"
+                    print( " discrepant! Trying again:" )
                     ESP300.setA2(ax2)
                     ESP300.setA3(ax3)
                     time.sleep( 1 )
                     x= float(ESP300.tpA2())
                     y=float(ESP300.tpA3())
-                    print "X: ", float(ESP300.tpA2())
-                    print "Y: ", float(ESP300.tpA3())
-                print "-------------"
+                    print( "X: ", float(ESP300.tpA2()) )
+                    print( "Y: ", float(ESP300.tpA3()) )
+                print( "-------------" )
 
 
             dataFolder = name
