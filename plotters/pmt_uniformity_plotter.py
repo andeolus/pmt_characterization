@@ -153,7 +153,7 @@ if __name__ == '__main__':
             help='path [/name] of the file containing the analyzed data')
     parser.add_argument('--cfd_frac',     type=float, nargs='?', default=0.5,
             help='CFD threshold, default: 0.5')
-    parser.add_argument('--cfd_cut',     type=float, nargs='?', default=False,
+    parser.add_argument('--cfd_cut',      action="store_true",
             help='apply cut to plot only the given CFD threshold (input file could contain more than one)')
     parser.add_argument('-w', '--window', type=float, nargs='*',
             help='restrict plot to a particular window of xmin xmax ymin ymax')
