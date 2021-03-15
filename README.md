@@ -38,13 +38,13 @@ positional arguments:
 optional arguments:
   -h, --help  show this help message and exit
 ```
-
+```
 Defaults
   - pedRange = 200 ;  description: pedestal range (in samples)  
   - cut_ini = 250  ;  description: signal init (in samples)  
   - cut_end = 1024 ;  description: signal end (in samples)  
   - ficheros = []  ;  description: directory containing the data files or the list of files  
-
+```
 * old: **TTS.py**  
 analyze uniformity using all the files for different points.  
 The direcory of the files can be given alternatively to a list of all files. files must start with P (ensured by measure/mesura_PMT_scan.py).  
@@ -58,7 +58,7 @@ Defaults
   - numPoints= 0   ;  description: not used, inherited from previous scripts that applyied filters [number of points]  
 
 ### plotters
-* **TTS_plotter.py**  
+* **pmt_uniformity_plotter.py**  
 Plot trasient time, transit time spread and mean signal amplitude of a given PMT.  
 Needs the name of the input file containing the information, typically TTS.txt or TTS_wma.txt  
 Needs the pandas module  
