@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function 
+from __future__ import print_function
 import argparse
 import time
 import os
@@ -24,61 +24,61 @@ def scan(name, num_waveforms, xmin, xmax, xN, ymin, ymax, yN):
 
     # choose min, max, N: force step
     xstep = float(xmax-xmin)/float(xN-1) if xN!=1 else 0
-    a2 = [ xmin + xstep*i for i in range( xN )]
+    a1 = [ xmin + xstep*i for i in range( xN )]
     ystep = float(ymax-ymin)/float(yN-1) if yN!=1 else 0
-    a3 = [ ymin + ystep*i for i in range( yN )]
+    a2 = [ ymin + ystep*i for i in range( yN )]
 
-    for ax2 in a2:
-        for ax3 in a3:
+    for ax1 in a1:
+        for ax2 in a2:
             try:
-                print( "aiming to: ", ax2, ax3 )
-                ESP300.setA(ax2,2)
+                print( "aiming to: ", ax1, ax2 )
+                ESP300.setA1(ax1)
                 time.sleep( 1 )
-                ESP300.setA(ax3,3)
+                ESP300.setA2(ax2)
                 time.sleep( 2 ) #1
-                x= float(ESP300.tpA(2))
+                x= float(ESP300.tpA1())
                 time.sleep( 1 )
-                y=float(ESP300.tpA(3))
+                y=float(ESP300.tpA2())
                 print( "X, Y:    ", x , y )
                 # print( "Y: ", y )
-                if (abs(ax2-x)>0.1 or abs(ax3-y)>0.1):
+                if (abs(ax1-x)>0.1 or abs(ax2-y)>0.1):
                     print( " discrepant! Trying again:" )
+                    ESP300.setA1(ax1)
                     ESP300.setA2(ax2)
-                    ESP300.setA3(ax3)
                     time.sleep( 1 )
-                    x= float(ESP300.tpA2())
-                    y=float(ESP300.tpA3())
-                    print( "X: ", float(ESP300.tpA2()) )
-                    print( "Y: ", float(ESP300.tpA3()) )
+                    x= float(ESP300.tpA1())
+                    y=float(ESP300.tpA2())
+                    print( "X: ", float(ESP300.tpA1()) )
+                    print( "Y: ", float(ESP300.tpA2()) )
                 print( "-------------" )
             except:
                 print( "ERROR!!!" )
                 print( "Trying again..." )
-                print( "aiming to: ", ax2, ax3 )
-                ESP300.setA(ax2,2)
-                ESP300.setA(ax3,3)
+                print( "aiming to: ", ax1, ax2 )
+                ESP300.setA1(ax1)
+                ESP300.setA2(ax2)
                 time.sleep( 4 ) #1
-                x= float(ESP300.tpA(2))
-                y=float(ESP300.tpA(3))
+                x= float(ESP300.tpA1())
+                y=float(ESP300.tpA2())
                 print( "X, Y:    ", x , y )
                 # print( "Y: ", y )
-                if (abs(ax2-x)>0.1 or abs(ax3-y)>0.1):
+                if (abs(ax1-x)>0.1 or abs(ax2-y)>0.1):
                     print( " discrepant! Trying again:" )
+                    ESP300.setA1(ax1)
                     ESP300.setA2(ax2)
-                    ESP300.setA3(ax3)
                     time.sleep( 1 )
-                    x= float(ESP300.tpA2())
-                    y=float(ESP300.tpA3())
-                    print( "X: ", float(ESP300.tpA2()) )
-                    print( "Y: ", float(ESP300.tpA3()) )
+                    x= float(ESP300.tpA1())
+                    y=float(ESP300.tpA2())
+                    print( "X: ", float(ESP300.tpA1()) )
+                    print( "Y: ", float(ESP300.tpA2()) )
                 print( "-------------" )
 
 
             dataFolder = name
             if not os.path.isdir(dataFolder):
                 os.mkdir(dataFolder)
-            waveformFile1 = open(dataFolder+"/PMTsignal" + "_X" + str( ax2 ) + "mm_Y" + str( ax3 ) + "mm.bin","wb")
-            waveformFile4 = open(dataFolder+"/LaserTrigger" + "_X" + str( ax2 ) + "mm_Y" + str( ax3 ) + "mm.bin","wb")
+            waveformFile1 = open(dataFolder+"/PMTsignal" + "_X" + str( ax1 ) + "mm_Y" + str( ax2 ) + "mm.bin","wb")
+            waveformFile4 = open(dataFolder+"/LaserTrigger" + "_X" + str( ax1 ) + "mm_Y" + str( ax2 ) + "mm.bin","wb")
             for i in range(num_waveforms):
                 scope.single()
                 waveform1 = scope.data_waveform("ch1") # !change

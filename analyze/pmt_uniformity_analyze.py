@@ -168,7 +168,7 @@ if __name__ == "__main__":
             ficheros = [pseudofichero+'/'+str(fichero) for fichero in ficheros if fichero[0]=='P'] #"./FirstData/"
     if not os.path.exists('TTS.txt'):
         with open('TTS.txt','a') as TTS:
-            TTS.write('X Y stddev mean filename CFD_threshold_fraction') # !revisar
+            TTS.write('X Y stddev mean filename CFD_threshold_fraction maxVmean') # !revisar
 
     # loop over files
     for fichero in ficheros:
@@ -226,7 +226,7 @@ if __name__ == "__main__":
         plot_TT(cfdTimes, maximumVs)
 
         # Write results to TTS.txt file
-        line = '\n {} {} {} {} {} {} {}'.format(X, Y, TTS_CFD, TTmean_CFD, fichero, cfd_frac, meanAmplitude)
+        line = '\n{} {} {} {} {} {} {}'.format(X, Y, TTS_CFD, TTmean_CFD, fichero, cfd_frac, meanAmplitude)
         # '\n', str(X), str(Y), str(TTS_CFD), str(TTmean_CFD), str(fichero), str(cfd_frac), str(meanAmplitude)
         with open('TTS.txt','a') as TTS:
             TTS.write(line)

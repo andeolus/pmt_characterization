@@ -123,6 +123,7 @@ def make_plots(input_file="TTS.txt", cfd_frac=-1, cfd_cut=False, window=None, wi
         ymin = window[2]
         ymax = window[3]
         DF= DF.loc[ (DF['X'] >= xmin) & (DF['X'] <= xmax ) & (DF['Y'] >= ymin) & (DF['Y'] <= ymax)]
+    # DF=DF.loc[ DF['maxVmean'] >= 20 ]
 
     X_unique = np.sort(DF.X.unique())
     Y_unique = np.sort(DF.Y.unique())
