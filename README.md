@@ -11,6 +11,25 @@ _Usage_: python motion_controll_scroll.py xmin xmax xN ymin ymax yN --bool_wait
 * **mesura_PMT_scan.py**: fer mesures en una xarxa de punts, guardant dades a la carpeta "name" amb "num_waveforms" per punt  
 _Usage_: python mesura_PMT_scan.py name num_waveforms xmin xmax xN ymin ymax yN  
 
+* **mesura_PMT_HV.py**:  mesura_PMT_HV.py [-h] [HV] [name] [num_waveforms] [PMT_ch] [LASER_ch]
+```
+heplab@heplab-ALDA:~/workspace/UpgradeII/SPACAL_PMT_R11187/TEST_20210602$  python  ~/workspace/UpgradeII/pmt_characterization/measure/mesura_PMT_HV.py -h
+python /home/heplab/workspace/UpgradeII/pmt_characterization/measure/mesura_PMT_HV.py
+usage: mesura_PMT_HV.py [-h] [HV] [name] [num_waveforms] [PMT_ch] [LASER_ch]
+
+Make measurements of n waveforms. Provide the Voltage of each measure. Provide
+the name of the folder where you want data to be saved.
+
+positional arguments:
+  HV             Voltage
+  name           name of the folder where you want data to be saved. "new" for
+                 automatic format data_HV_{date}
+  num_waveforms  number of waveforms to take at each point
+  PMT_ch         PMT channel in the oscilloscope
+  LASER_ch       Laser channel in the oscilloscope
+
+
+```
 ### analyze
 * **pmt_uniformity_analyze.py**  
 Analyzes a list of files for different coordinates or settings and prints analyzed data to the output file TTS.txt  
@@ -45,6 +64,10 @@ Defaults
   - cut_end = 1024 ;  description: signal end (in samples)  
   - ficheros = []  ;  description: directory containing the data files or the list of files  
 ```
+
+* **pmt_HV_analyze.py**  
+similar to old TTS.py but also measures gain
+
 * old: **TTS.py**  
 analyze uniformity using all the files for different points.  
 The direcory of the files can be given alternatively to a list of all files. files must start with P (ensured by measure/mesura_PMT_scan.py).  
