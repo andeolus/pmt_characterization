@@ -4,84 +4,64 @@ import time
 import os
 import numpy as np
 import sys
+import argparse
 from OOFlex.interface.InterfaceFactory import InterfaceFactory
 from OOFlex.measurement.Measure import Measure
 from OOFlex.csvfiles.CSVWriter import CSVWriter
 
-print "python {} [Axis 1] [Axis 2] [Axis 3] // abs position".format(sys.argv[0])
+print "python {}".format(sys.argv[0])
+
+parser = argparse.ArgumentParser(
+    description=
+    '''Make measurements of n waveforms. Provide the Voltage of each measure.
+    Provide the name of the folder where you want data to be saved.
+    '''
+    )
+parser.add_argument('HV', type=float, nargs='?', default=0,
+    help='Voltage')
+parser.add_argument('name', type=str,   nargs='?', default="proves",
+    help='''name of the folder where you want data to be saved.
+            "new" for automatic format data_HV_{date}''')
+parser.add_argument('num_waveforms', type=int,   nargs='?', default=1000,
+    help='number of waveforms to take at each point')
+parser.add_argument('PMT_ch', type=int, nargs='?', default=1,
+    help='PMT channel in the oscilloscope')
+parser.add_argument('LASER_ch', type=int, nargs='?', default=4,
+    help='Laser channel in the oscilloscope')
+args = parser.parse_args()
+
+voltage = args.HV
+num_waveforms = args.num_waveforms
+PMT_channel = 'ch{n}'.format(n=args.PMT_ch)
+LASER_channel = 'ch{n}'.format(n=args.LASER_ch)
+dataFolder = args.name
+if (dataFolder=="new"):
+    date=time.strftime("%Y_%m_%d_%H%M")
+    dataFolder='data_HV_{date}'.format(date=date) # !change
+if not os.path.isdir(dataFolder):
+    os.mkdir(dataFolder)
+
+ax1=0
+ax2=0
 
 factory = InterfaceFactory( "setup.ini" )
-
 time.sleep( 0.3 )
-
 ESP300 = factory.getDevice( "motionController" )
 scope = factory.getDevice( "scope" )
-
 time.sleep( 0.3 )
 
-voltage=900 #  !change
-# a2 = [6] #  !change
-# a3 = [-9]
-# a2 =  [round(    3+i*0.1,1) for i in range(55)] # !change
-# a3 =  [round(-21.4+i*0.1,1) for i in range(55)] # !change
-a2 =[ 6 ] #+i*1.5 for i in range(2)]
-a3 =[-9] # [-10.5+i*1.5 for i in range(8)]
-num_waveforms = 1000 # !change 1000
+wf_PMT_name   = "{dataFolder}/PMTsignal_X{ax1}mm_Y{ax2}mm_Voltage_{voltage}.bin".format(
+    dataFolder=dataFolder,ax1=ax1,ax2=ax2,voltage=voltage)
+wf_LASER_name = "{dataFolder}/LaserTrigger_X{ax1}mm_Y{ax2}mm_Voltage_{voltage}.bin".format(
+    dataFolder=dataFolder,ax1=ax1,ax2=ax2,voltage=voltage)
+waveformFile_PMT   = open(wf_PMT_name,"wb")
+waveformFile_LASER = open(wf_LASER_name,"wb")
 
-for ax2 in a2:
-    for ax3 in a3:
-        try:
-            print "aiming to: ", ax2, ax3
-            ESP300.setA(ax2,2)
-            time.sleep( 1 )
-            ESP300.setA(ax3,3)
-            time.sleep( 2 ) #1
-            x= float(ESP300.tpA(2))
-            time.sleep( 1 )
-            y=float(ESP300.tpA(3))
-            print "X, Y:    ", x , y
-            # print "Y: ", y
-            if (abs(ax2-x)>0.1 or abs(ax3-y)>0.1):
-                print " discrepant! Trying again:"
-                ESP300.setA2(ax2)
-                ESP300.setA3(ax3)
-                time.sleep( 1 )
-                x= float(ESP300.tpA2())
-                y=float(ESP300.tpA3())
-                print "X: ", float(ESP300.tpA2())
-                print "Y: ", float(ESP300.tpA3())
-            print "-------------"
-        except:
-            print "ERROR!!!"
-            print "Trying again..."
-            print "aiming to: ", ax2, ax3
-            ESP300.setA(ax2,2)
-            ESP300.setA(ax3,3)
-            time.sleep( 4 ) #1
-            x= float(ESP300.tpA(2))
-            y=float(ESP300.tpA(3))
-            print "X, Y:    ", x , y
-            # print "Y: ", y
-            if (abs(ax2-x)>0.1 or abs(ax3-y)>0.1):
-                print " discrepant! Trying again:"
-                ESP300.setA2(ax2)
-                ESP300.setA3(ax3)
-                time.sleep( 1 )
-                x= float(ESP300.tpA2())
-                y=float(ESP300.tpA3())
-                print "X: ", float(ESP300.tpA2())
-                print "Y: ", float(ESP300.tpA3())
-            print "-------------"
-        dataFolder='Data_14sep_TS0340_voltages' # !change
-        if not os.path.isdir(dataFolder):
-            os.mkdir(dataFolder)
-        waveformFile1 = open(dataFolder+"/PMTsignal" + "_X" + str( ax2 ) + "mm_Y" + str( ax3 ) + "mm_Voltage_"+str(voltage)+".bin","wb")
-        waveformFile4 = open(dataFolder+"/LaserTrigger" + "_X" + str( ax2 ) + "mm_Y" + str( ax3 ) + "mm_Voltage_"+str(voltage)+".bin","wb")
-        for i in range(num_waveforms):
-            scope.single()
-            waveform1 = scope.data_waveform("ch1")
-            waveform4 = scope.data_waveform("ch4")
-            waveformFile1.write(waveform1)
-            waveformFile4.write(waveform4)
-        waveformFile1.close()
-        waveformFile4.close()
+for i in range(num_waveforms):
+    scope.single()
+    waveform_PMT   = scope.data_waveform(PMT_channel)
+    waveform_LASER = scope.data_waveform(LASER_channel)
+    waveformFile_PMT.write(waveform_PMT)
+    waveformFile_LASER.write(waveform_LASER)
+waveformFile1.close()
+waveformFile4.close()
