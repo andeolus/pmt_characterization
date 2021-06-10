@@ -179,7 +179,7 @@ if __name__ == "__main__":
           ficheros = [pseudofichero+'/'+str(fichero) for fichero in ficheros if fichero[0]=='P'] #"./FirstData/"
   if not os.path.exists('TTS.txt'):
       with open('TTS.txt','a') as TTS:
-          TTS.write('X Y stddev mean filename CFD_threshold_fraction maxVmean HV Gain Gain2')
+          TTS.write('X Y stddev mean filename CFD_threshold_fraction maxVmean HV Gain Gain2 nphe nphe2')
   for fichero in ficheros:
     X = 0 #re.search('_X(.*?)mm', fichero).group(1)
     Y = 0 #re.search('_Y(.*?)mm', fichero).group(1)
@@ -252,17 +252,19 @@ if __name__ == "__main__":
     meanAmplitude=np.mean(maximumVs)
 
     HV = re.search('Voltage(.*?).bin', fichero).group(1)
+    nphe= ((np.mean(charges))**2) / ((np.std(charges))**2)
+    nphe2= (np.mean(chargeswp)-np.mean(chargesp))**2 / ((np.std(chargeswp))**2-(np.std(chargesp))**2)
     gain= np.std(charges)**2/np.mean(charges)/1.60217662e-19
-    gain2= (np.std(chargeswp)**2-np.std(chargesp)**2)/np.mean(charges)/1.60217662e-19
+    gain2= (np.std(chargeswp)**2-np.std(chargesp)**2) /np.mean(charges) /1.60217662e-19
     print(np.std(charges)**2/np.mean(charges)/1.60217662e-19)
     print('means: ',np.mean(charges),np.mean(chargeswp)-np.mean(chargesp),np.mean(chargesp),np.mean(chargeswp))
     print('devs: ',np.std(charges), (np.std(chargeswp)**2-np.std(chargesp)**2)**0.5, np.std(chargesp), np.std(chargeswp))
 
     # Write results to TTS.txt file
     with open('TTS.txt','a') as TTS:
-      results='\n{X} {Y} {fracTs_jitter} {fracTs_mean} {fichero} {cfd_frac} {meanAmplitude} {HV} {gain} {gain2}'.format(
+      results='\n{X} {Y} {fracTs_jitter} {fracTs_mean} {fichero} {cfd_frac} {meanAmplitude} {HV} {gain} {gain2} {nphe} {nphe2}'.format(
       X=X,Y=Y,fracTs_jitter=fracTs_jitter,fracTs_mean=fracTs_mean,fichero=fichero,
-      cfd_frac=cfd_frac,meanAmplitude=meanAmplitude,HV=HV,gain=gain,gain2=gain2,)
+      cfd_frac=cfd_frac,meanAmplitude=meanAmplitude,HV=HV,gain=gain,gain2=gain2,nphe=nphe,nphe2=nphe2)
       TTS.write(results)
     fd.close()
 
