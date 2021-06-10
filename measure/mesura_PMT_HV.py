@@ -63,5 +63,5 @@ for i in range(num_waveforms):
     waveform_LASER = scope.data_waveform(LASER_channel)
     waveformFile_PMT.write(waveform_PMT)
     waveformFile_LASER.write(waveform_LASER)
-waveformFile1.close()
-waveformFile4.close()
+waveformFile_PMT.close()
+waveformFile_LASER.close()
