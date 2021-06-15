@@ -210,27 +210,31 @@ if __name__ == "__main__":
       header, waveform, wave_size = read_waveform( fd )
       pol=-1
       waveform=[pol*i for i in waveform]
-      pedestal.append( calculate_pedestal( waveform, pedRange ) )
-      times =  [ 1e9 * ( header[ 1 ] * value + header[ 0 ] ) for value in range( len( waveform ) ) ]
-      voltages = [ 1e3 * value for value in waveform ]
-      voltagesPS = np.array( voltages ) - 1e3 * pedestal[-1]  #Pedestal substracted
+      if waveform == []:
+          print("this waveform contains nothing")
+      else:
+          pedestal.append( calculate_pedestal( waveform, pedRange ) )
+          times =  [ 1e9 * ( header[ 1 ] * value + header[ 0 ] ) for value in range( len( waveform ) ) ]
+          voltages = [ 1e3 * value for value in waveform ]
+          voltagesPS = np.array( voltages ) - 1e3 * pedestal[-1]  #Pedestal substracted
 
+          try:
+              maximumV, maximumTime, cfdTime, leTime = analyze_waveform( voltagesPS, times, cfd_frac , LEthr)
+              maximumVs.append( maximumV )
+              maximumTimes.append(maximumTime)
+              cfdTimes.append(cfdTime)
+              leTimes.append(leTime)
+              charges.append( calculate_charge( waveform, pedestal[ -1 ], header[ 1 ], cut_ini,  cut_end) )
+              chargeswp.append( calculate_charge_wp( waveform, pedestal[ -1 ], header[ 1 ], cut_ini,  cut_end) )
+              chargesp.append( calculate_charge_wp( waveform, pedestal[ -1 ], header[ 1 ], 0,  cut_end-cut_ini) )
+              # leTimesClassifier(voltagesPS, times, 100,leTimesCl)
 
-      maximumV, maximumTime, cfdTime, leTime = analyze_waveform( voltagesPS, times, cfd_frac , LEthr)
-      maximumVs.append( maximumV )
-      maximumTimes.append(maximumTime)
-      cfdTimes.append(cfdTime)
-      leTimes.append(leTime)
-      charges.append( calculate_charge( waveform, pedestal[ -1 ], header[ 1 ], cut_ini,  cut_end) )
-      chargeswp.append( calculate_charge_wp( waveform, pedestal[ -1 ], header[ 1 ], cut_ini,  cut_end) )
-      chargesp.append( calculate_charge_wp( waveform, pedestal[ -1 ], header[ 1 ], 0,  cut_end-cut_ini) )
-      # leTimesClassifier(voltagesPS, times, 100,leTimesCl)
-
-      ToA_CFD, ToT, th  = getCFDThreshold(times, list(voltagesPS), 6.25e-12, len(voltagesPS), attenuation=3.0102999566, delay=1,  threshold= 0)
-      ToA_CFDs.append(ToA_CFD)
-      ToTs.append(ToT)
-      ths.append(th)
-
+              ToA_CFD, ToT, th  = getCFDThreshold(times, list(voltagesPS), 6.25e-12, len(voltagesPS), attenuation=3.0102999566, delay=1,  threshold= 0)
+              ToA_CFDs.append(ToA_CFD)
+              ToTs.append(ToT)
+              ths.append(th)
+          except:
+              print("his waveform has a strange shape probably")
       file_size -= wave_size
 
     # with open('dadesAnalitzades.txt','a') as da:
