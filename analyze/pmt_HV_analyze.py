@@ -4,57 +4,10 @@ import matplotlib.pyplot as plt
 import sys
 import struct
 import os.path
-import getopt
+import argparse
 import numpy as np
 import re
 import os
-
-
-def usage(errorCode=0):
-  print( "-------------------------------------------------")
-  print( "  Usage: python plotWaveform <-r [pedestal range]> <-i [signal init]> <-e [signal end]> <-n [number of points]> <-h [help]> data_files ")
-  print( "-------------------------------------------------")
-  sys.exit(errorCode)
-
-def getparams(argv):
-  ''' Get options from command line
-      Returns
-  '''
-
-  try:
-    obligatories = list('')
-    opts, args = getopt.getopt(argv, 'hr:i:e:n:')
-
-    # Default values
-    pedRange = 200
-    cut_ini  = 250
-    cut_end  = 1024
-    ficheros = []
-    numPoints= 0
-
-    # Default values
-    for opt, val in opts:
-      if opt[1] in obligatories: obligatories.remove(opt[1])
-      if opt == '-r':
-        pedRange = int(val)
-      elif opt == '-i':
-        cut_ini = int(val)
-      elif opt == '-e':
-        cut_end = int(val)
-      elif opt == '-n':
-        numPoints = int(val)
-      elif opt == '-h':
-        usage()
-
-    if len(obligatories) > 0:
-      raise
-
-    ficheros = list(args)
-
-  except( Exception):
-    usage(1)
-
-  return [pedRange, cut_ini, cut_end, ficheros, numPoints]
 
 
 def read_waveform( fd ):
@@ -90,9 +43,9 @@ def calculate_charge( waveform, pedestal, xinc, cut_ini, cut_end ):
 def calculate_charge_wp( waveform, pedestal, xinc, cut_ini, cut_end ):
   "Remove the hash key to visualize the piece of waveform used to calculate the charge of the waveform."
   charge = 0
-  wave_ped_subs = np.array( waveform )
+  wave = np.array( waveform )
   for it in range( cut_ini, cut_end - 1 ):
-    charge += ( wave_ped_subs[ it ] + ( wave_ped_subs[ it + 1 ] - wave_ped_subs[ it ] ) / 2 ) * xinc / 50  #Este 1250 es la resistencia corregida
+    charge += ( wave[ it ] + ( wave[ it + 1 ] - wave[ it ] ) / 2 ) * xinc / 50  #Este 1250 es la resistencia corregida
   return charge
 
 # "Mathematical" CFD, takes the closest value to f% of the total amplitude
@@ -158,99 +111,97 @@ def getCFDThreshold( times, waveform, xinc, points, attenuation=0, delay=0, thre
     return ToA_CFD, ToT, th
 
 
-
-
 #----------------------------------------------------------------------------------------------------------------------------
 
 #----------------------------------------------------------------------------------------------------------------------------
 
 
 if __name__ == "__main__":
-  pedRange, cut_ini, cut_end, ficheros, NumPoints = getparams( sys.argv[ 1: ] )
-  print(pedRange, cut_ini, cut_end, ficheros, NumPoints)
-  cfd_frac=0.5
-  LEthr=200
-  # Find files if a folder name is passed
-  # Only files starting with 'P' are read so only PMT signals are selected, ignoring Laser Trigger. CHANGE THIS IF FILE NAMES ARE DIFFERENT !!!
-  # Files sould be named with the format PMTsignal_X13.5mm_Y-2mm.bin
-  for pseudofichero in ficheros:
-      if os.path.isdir(pseudofichero):
-          ficheros = os.listdir(pseudofichero) #"./FirstData"
-          ficheros = [pseudofichero+'/'+str(fichero) for fichero in ficheros if fichero[0]=='P'] #"./FirstData/"
-  if not os.path.exists('TTS.txt'):
-      with open('TTS.txt','a') as TTS:
-          TTS.write('X Y stddev mean filename CFD_threshold_fraction maxVmean HV Gain Gain2 nphe nphe2')
-  for fichero in ficheros:
-    X = 0 #re.search('_X(.*?)mm', fichero).group(1)
-    Y = 0 #re.search('_Y(.*?)mm', fichero).group(1)
-    print("X,  "+ str(X) + '  Y, '+str(Y))
-    print( "Processing file %s" % fichero)
-    fd = open( fichero, "rb" )
-    file_size = os.path.getsize( fichero )
-    pedestal = []
-    charges = []
-    chargeswp = []
-    chargesp = []
-    maximumVs = []
-    maximumTimes = []
-    cfdTimes = []
-    leTimes = []
-    leTimesCl = [ [],[],[] ]
-    ToA_CFDs = []
-    ToTs = []
-    ths = []
+    parser = argparse.ArgumentParser(
+        description=
+        '''Analyzes measurements of a PMT in a grid of points
+        Provide the name of the folder containing data.
+        ''')
+    parser.add_argument('-r','--pedRange',  type=int, nargs='?', default=200,
+        help='range from 0 to calculate pedestal mean (in samples, usually of 0.2 ns)')
+    parser.add_argument('-i','--cut_ini',   type=int, nargs='?', default=250,
+        help='starting point of signal (in samples)')
+    parser.add_argument('-e','--cut_end',   type=int, nargs='?', default=1024,
+        help='ending point of signal (in samples)')
+    parser.add_argument('ficheros',   type=str, nargs='+',
+        help='directory were data is stored or list of data files. Files should start with P')
+    args = parser.parse_args()
+    pedRange = args.pedRange
+    cut_ini  = args.cut_ini
+    cut_end  = args.cut_end
+    ficheros = args.ficheros
+    print(pedRange, cut_ini, cut_end, ficheros)
+    cfd_frac=0.5
+    LEthr=200
 
-    # pedRange = 300
-    # cut_ini = 350
-    # cut_end = 450
-    # NumPoints = 0
+    # Find files if a folder name is passed
+    # Only files starting with 'P' are read so only PMT signals are selected, ignoring Laser Trigger. CHANGE THIS IF FILE NAMES ARE DIFFERENT !!!
+    # Files sould be named with the format PMTsignal_X13.5mm_Y-2mm.bin
+    for pseudofichero in ficheros:
+        if os.path.isdir(pseudofichero):
+            ficheros = os.listdir(pseudofichero) #"./FirstData"
+            ficheros = [pseudofichero+'/'+str(fichero) for fichero in ficheros if fichero[0]=='P'] #"./FirstData/"
 
+    if not os.path.exists('TTS.txt'):
+        with open('TTS.txt','a') as TTS:
+            TTS.write('X Y stddev mean filename CFD_threshold_fraction maxVmean HV Gain Gain2 nphe nphe2')
+
+    for fichero in ficheros:
+        X = 0 #re.search('_X(.*?)mm', fichero).group(1)
+        Y = 0 #re.search('_Y(.*?)mm', fichero).group(1)
+        print("X,  "+ str(X) + '  Y, '+str(Y))
+        print( "Processing file %s" % fichero)
+        fd = open( fichero, "rb" )
+        file_size = os.path.getsize( fichero )
+        pedestal = []
+        charges = []
+        chargeswp = []
+        chargesp = []
+        maximumVs = []
+        maximumTimes = []
+        cfdTimes = []
+        leTimes = []
+        leTimesCl = [ [],[],[] ]
+        ToA_CFDs = []
+        ToTs = []
+        ths = []
 
     while file_size > 0:
-      header, waveform, wave_size = read_waveform( fd )
-      pol=-1
-      waveform=[pol*i for i in waveform]
-      if waveform == []:
-          print("this waveform contains nothing")
-      else:
-          pedestal.append( calculate_pedestal( waveform, pedRange ) )
-          times =  [ 1e9 * ( header[ 1 ] * value + header[ 0 ] ) for value in range( len( waveform ) ) ]
-          voltages = [ 1e3 * value for value in waveform ]
-          voltagesPS = np.array( voltages ) - 1e3 * pedestal[-1]  #Pedestal substracted
+        header, waveform, wave_size = read_waveform( fd )
+        pol=-1
+        waveform=[pol*i for i in waveform]
+        if waveform == []:
+            print("this waveform contains nothing")
+        else:
+            pedestal.append( calculate_pedestal( waveform, pedRange ) )
+            times =  [ 1e9 * ( header[ 1 ] * value + header[ 0 ] ) for value in range( len( waveform ) ) ]
+            voltages = [ 1e3 * value for value in waveform ]
+            voltagesPS = np.array( voltages ) - 1e3 * pedestal[-1]  #Pedestal substracted
 
-          try:
-              maximumV, maximumTime, cfdTime, leTime = analyze_waveform( voltagesPS, times, cfd_frac , LEthr)
-              maximumVs.append( maximumV )
-              maximumTimes.append(maximumTime)
-              cfdTimes.append(cfdTime)
-              leTimes.append(leTime)
-              charges.append( calculate_charge( waveform, pedestal[ -1 ], header[ 1 ], cut_ini,  cut_end) )
-              chargeswp.append( calculate_charge_wp( waveform, pedestal[ -1 ], header[ 1 ], cut_ini,  cut_end) )
-              chargesp.append( calculate_charge_wp( waveform, pedestal[ -1 ], header[ 1 ], 0,  cut_end-cut_ini) )
+        try:
+            maximumV, maximumTime, cfdTime, leTime = analyze_waveform( voltagesPS, times, cfd_frac , LEthr)
+            maximumVs.append( maximumV )
+            maximumTimes.append(maximumTime)
+            cfdTimes.append(cfdTime)
+            leTimes.append(leTime)
+            charges.append( calculate_charge( waveform, pedestal[ -1 ], header[ 1 ], cut_ini,  cut_end) )
+            chargeswp.append( calculate_charge_wp( waveform, pedestal[ -1 ], header[ 1 ], cut_ini,  cut_end) )
+            chargesp.append( calculate_charge_wp( waveform, pedestal[ -1 ], header[ 1 ], 0,  cut_end-cut_ini) )
               # leTimesClassifier(voltagesPS, times, 100,leTimesCl)
 
-              ToA_CFD, ToT, th  = getCFDThreshold(times, list(voltagesPS), 6.25e-12, len(voltagesPS), attenuation=3.0102999566, delay=1,  threshold= 0)
-              ToA_CFDs.append(ToA_CFD)
-              ToTs.append(ToT)
-              ths.append(th)
-          except:
-              print("his waveform has a strange shape probably")
-      file_size -= wave_size
+            ToA_CFD, ToT, th  = getCFDThreshold(times, list(voltagesPS), 6.25e-12, len(voltagesPS), attenuation=3.0102999566, delay=1,  threshold= 0)
+            ToA_CFDs.append(ToA_CFD)
+            ToTs.append(ToT)
+            ths.append(th)
+        except:
+            print("his waveform has a strange shape probably")
+        file_size -= wave_size
 
-    # with open('dadesAnalitzades.txt','a') as da:
-    #   da.write('En la configuracio: '+'python analyze_Waveform.py '+'-r '+str(pedRange)+' -i '+str(cut_ini)+' -e '+str(cut_end)+' '+str(fichero)+' _cfd_' +str(cfd_frac)+ '\n')
-    #   da.write('pedestal= ' + str(pedestal) + '\n')
-    #   da.write('maximumVs= ' + str(maximumVs) + '\n')
-    #   da.write('charges= ' + str(charges) + '\n')
-    #   da.write('maximumTimes= ' + str(maximumTimes) + '\n')
-    #   da.write('cfdTimes50= ' +  str(cfdTimes) + '\n')
-    #   da.write('leTimes100wlr= ' + str(leTimes) + '\n' )
-    #   da.write('leTimesCl= ' + str(leTimesCl) + '\n' )
-    #   da.write(  'attenuation = 3.0102999566' + 'dB'+'\n')
-    #   da.write('ToA_CFDs_att= ' + str(ToA_CFDs)+ '\n')
-    #   da.write('ToTs_att= ' + str(ToTs) +'\n')
-    #   da.write('ths_att= ' + str(ths) +'\n')
-    #   da.write(2*'\n')
     fracTs_jitter= np.std(cfdTimes)
     fracTs_mean= np.mean(cfdTimes)
     meanAmplitude=np.mean(maximumVs)
@@ -266,10 +217,10 @@ if __name__ == "__main__":
 
     # Write results to TTS.txt file
     with open('TTS.txt','a') as TTS:
-      results='\n{X} {Y} {fracTs_jitter} {fracTs_mean} {fichero} {cfd_frac} {meanAmplitude} {HV} {gain} {gain2} {nphe} {nphe2}'.format(
-      X=X,Y=Y,fracTs_jitter=fracTs_jitter,fracTs_mean=fracTs_mean,fichero=fichero,
-      cfd_frac=cfd_frac,meanAmplitude=meanAmplitude,HV=HV,gain=gain,gain2=gain2,nphe=nphe,nphe2=nphe2)
-      TTS.write(results)
+        results='\n{X} {Y} {fracTs_jitter} {fracTs_mean} {fichero} {cfd_frac} {meanAmplitude} {HV} {gain} {gain2} {nphe} {nphe2}'.format(
+        X=X,Y=Y,fracTs_jitter=fracTs_jitter,fracTs_mean=fracTs_mean,fichero=fichero,
+        cfd_frac=cfd_frac,meanAmplitude=meanAmplitude,HV=HV,gain=gain,gain2=gain2,nphe=nphe,nphe2=nphe2)
+        TTS.write(results)
     fd.close()
 
 

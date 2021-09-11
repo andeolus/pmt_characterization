@@ -66,7 +66,23 @@ Defaults
 ```
 
 * **pmt_HV_analyze.py**  
-similar to old TTS.py but also measures gain
+```
+usage: pmt_HV_analyze.py [-h] [-r [PEDRANGE]] [-i [CUT_INI]] [-e [CUT_END]] ficheros [ficheros ...]
+
+Analyzes measurements of a PMT in a grid of points Provide the name of the folder containing data.
+
+positional arguments:
+  ficheros              directory were data is stored or list of data files. Files should start with P
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -r [PEDRANGE], --pedRange [PEDRANGE]
+                        range from 0 to calculate pedestal mean (in samples, usually of 0.2 ns)
+  -i [CUT_INI], --cut_ini [CUT_INI]
+                        starting point of signal (in samples)
+  -e [CUT_END], --cut_end [CUT_END]
+                        ending point of signal (in samples)
+```
 
 * old: **TTS.py**  
 analyze uniformity using all the files for different points.  
